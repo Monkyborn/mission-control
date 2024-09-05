@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
+const API = axios.create({
+    baseURL: process.env.NODE_ENV === 'production' 
+      ? '/api'  // relative URL in production, assuming your backend and frontend are on the same domain
+      : 'http://localhost:5000/api' // localhost for development
+  });
+  
 
 // Missions
 export const fetchMissions = () => API.get('/missions');

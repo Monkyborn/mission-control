@@ -7,7 +7,11 @@ import ControlPanel from './ControlPanel';
 import Loading from './Loading';
 import { fetchRobot } from '../services/api';
 
-const socket = io('http://localhost:5000');
+const socket = io(process.env.REACT_APP_SOCKET_URL);
+
+socket.on('connect', () => {
+  console.log('Connected to WebSocket');
+});
 
 const RobotTeleoperation = () => {
   const { id } = useParams();

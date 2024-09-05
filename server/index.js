@@ -14,7 +14,9 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: '*', // Allow all origins or restrict to your frontend domain in production
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
   },
 });
 
@@ -23,21 +25,18 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-const mongoURI = process.env.MONGODB_URI || 'fallback-mongo-uri'; 
-mongoose.connect(mongoURI/*, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}*/)
+const mongoURI = process.env.MONGODB_URI || 'fallback-mongo-uri';
+mongoose.connect(mongoURI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => {
     console.error('MongoDB connection error:', err.message);
-    process.exit(1); // Exit if unable to connect to MongoDB
+    process.exit(1);
   });
 
 // API routes
 app.use('/api', routes);
 
-// Serve static assets from the React frontend build folder in production
+// Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
 
@@ -67,7 +66,7 @@ io.on('connection', (socket) => {
       if (!robot) return;
 
       const moveAmount = 20;
-      const maxPosition = 380; // Assuming 400 is the boundary
+      const maxPosition = 380;
 
       switch (direction) {
         case 'up':
@@ -87,8 +86,6 @@ io.on('connection', (socket) => {
       }
 
       await robot.save();
-
-      // Broadcast new position to all connected clients
       io.emit('robot_position', { pose_x: robot.pose_x, pose_y: robot.pose_y });
     } catch (error) {
       console.error('Error moving robot:', error.message);
