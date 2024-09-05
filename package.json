@@ -6,15 +6,19 @@
     "node": "21.7.3"
   },
   "scripts": {
-    "start": "npm run start-server",
-    "start-server": "node server/index.js", 
-    "build-client": "npm install --prefix client && npm run build --prefix client && cp -r client/build/* server/public/",
-    "heroku-postbuild": "npm install --prefix client && npm run build --prefix client && npm install --prefix server"
+    "start": "concurrently \"npm run start-server\" \"npm run build-client\"",
+    "start-server": "node -r dotenv/config server/index.js dotenv_config_path=./server/.env",
+    "build-client": "npm install --prefix client && npm run build --prefix client && mkdir -p server/public && cp -r client/build/* server/public/",
+    "client": "npm start --prefix client",
+    "server": "npm start --prefix server",
+    "heroku-postbuild": "npm install --prefix server && npm install --prefix client && npm run build --prefix client"
   },
   "dependencies": {
-    "concurrently": "^7.0.0"
+    "concurrently": "^7.0.0",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
+    "@babel/plugin-transform-private-property-in-object": "^7.24.7",
     "concurrently": "^7.0.0"
   }
 }
