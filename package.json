@@ -1,15 +1,22 @@
 {
-    "name": "fullstack-app",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-      "start": "concurrently \"npm start --prefix server\" \"npm start --prefix client\"",
-      "client": "npm start --prefix client",
-      "server": "npm start --prefix server",
-      "dev": "NODE_OPTIONS=--openssl-legacy-provider concurrently \"npm run dev --prefix server\" \"npm start --prefix client\""
-    },
-    "devDependencies": {
-      "concurrently": "^7.0.0"
-    }
+  "name": "fullstack-app",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "21.7.3"
+  },
+  "scripts": {
+    "start": "concurrently \"npm run start-server\" \"npm run build-client\"",
+    "start-server": "npm run server --prefix server",
+    "build-client": "npm install --prefix client && npm run build --prefix client && cp -r client/build/* server/public/",
+    "client": "npm start --prefix client",
+    "server": "npm start --prefix server",
+    "heroku-postbuild": "npm install --prefix server && npm install --prefix client && npm run build --prefix client"
+  },
+  "dependencies": {
+    "concurrently": "^7.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
   }
-  
+}
