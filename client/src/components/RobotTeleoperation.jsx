@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
-import { Container, Typography, Box } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { Container, Typography, Box, Button } from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
 import RobotMap from './RobotMap';
 import ControlPanel from './ControlPanel';
 import Loading from './Loading';
@@ -16,7 +16,7 @@ socket.on('connect', () => {
 
 const RobotTeleoperation = () => {
   const { id } = useParams(); // Extracts the robot ID from the URL parameters
-
+  const navigate = useNavigate();
   // Stores the robot's current position (x and y coordinates)
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
