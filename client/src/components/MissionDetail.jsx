@@ -125,7 +125,7 @@ const MissionDetail = () => {
       <Box mt={3} mb={2}>
         <Button
           variant="contained"
-          color="primary"
+          color="secondary"
           onClick={() => navigate('/')}
         >
           Back to Dashboard
