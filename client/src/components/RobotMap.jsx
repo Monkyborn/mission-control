@@ -12,7 +12,7 @@ const RobotMap = ({ position }) => (
       flexShrink: 0,
     }}
   >
-    // Creates a box to represent the robot's position within the map container
+    {/* // Creates a box to represent the robot's position within the map container */}
     <Box
       sx={{
         // Positions the robot based on the provided `position` object (x and y coordinates)

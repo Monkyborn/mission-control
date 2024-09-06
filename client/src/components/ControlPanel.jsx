@@ -17,7 +17,7 @@ const ControlPanel = ({ startMovement, clearMovement }) => (
       ml: 2,
     }}
   >
-    // Creates a grid layout for the buttons with 3 columns and 1 row
+    {/* // Creates a grid layout for the buttons with 3 columns and 1 row */}
     <Box
       display="grid"
       gridTemplateColumns="repeat(3, 1fr)"
