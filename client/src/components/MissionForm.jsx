@@ -1,65 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import { TextField, Button, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
-import { createMission, updateMission, fetchRobots } from '../services/api';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from 'react'; // Import React hooks for state management and lifecycle methods
+import { TextField, Button, MenuItem, Select, FormControl, InputLabel, DialogActions } from '@mui/material'; // Import Material UI components for form elements
+import { createMission, updateMission, fetchRobots } from '../services/api'; // Import API service functions for interacting with backend
+import { toast } from 'react-toastify'; // Import toast notification library
 
 const MissionForm = ({
-  mission, // Object representing the mission to edit (optional)
-  setMissions, // Function to update the missions state in the parent component
-  missions, // Array of existing missions (used for creating new mission)
-  closeForm, // Function to close the mission form modal
-  updateMissionInTable, // Function to update the mission in the table (used for editing)
+  mission, // Optional object representing the mission to edit (passed as a prop)
+  setMissions, // Function to update the missions state in the parent component (passed as a prop)
+  missions, // Array of existing missions (used for creating new mission) (passed as a prop)
+  closeForm, // Function to close the mission form modal (passed as a prop)
+  updateMissionInTable, // Function to update the mission in the table (used for editing) (passed as a prop)
 }) => {
-  // State variables to manage form data
-  const [name, setName] = useState(mission ? mission.name : '');
-  const [description, setDescription] = useState(mission ? mission.description : '');
-  const [robot, setRobot] = useState(mission?.robot?._id || ''); // Selected robot ID (empty string if none)
-  const [robots, setRobots] = useState([]); // Array of available robots
+  const [name, setName] = useState(mission ? mission.name : ''); // Initialize mission name state with default value (empty string or edited mission name)
+  const [description, setDescription] = useState(mission ? mission.description : ''); // Initialize mission description state with default value (empty string or edited mission description)
+  const [robot, setRobot] = useState(mission?.robot?._id || ''); // Initialize selected robot ID state (empty string if none, or edited mission's robot ID)
+  const [robots, setRobots] = useState([]); // Set initial state for available robots array
 
-  // Fetches robots on component mount
   useEffect(() => {
     const getRobots = async () => {
       try {
-        const response = await fetchRobots();
-        setRobots(response.data);
+        const response = await fetchRobots(); // Fetch robots data from API
+        setRobots(response.data); // Update robots state with fetched data
       } catch (error) {
-        toast.error('Error fetching robots');
-        console.error('Error fetching robots:', error);
+        toast.error('Error fetching robots'); // Show error notification
+        console.error('Error fetching robots:', error); // Log error details for debugging
       }
     };
 
-    getRobots();
-  }, []);
-
+    getRobots(); // Call the function to fetch robots on component mount
+  }, []); // Empty dependency array ensures useEffect runs only once after initial render
   // Handles form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
+    e.preventDefault(); // Prevent default form submission behavior
     // Creates the new mission object with form data
-    const newMission = { name, description, robot: robot || null }; 
+    const newMission = { name, description, robot: robot || null }; // Create a new mission object with form data
 
     try {
-      if (mission) {
-        // Updates existing mission
-        const updatedMission = await updateMission(mission._id, newMission);
-        updateMissionInTable(updatedMission.data); // Update mission in parent component table
-        toast.success('Mission updated successfully!');
-      } else {
-        // Creates a new mission
-        const createdMission = await createMission(newMission);
-        setMissions([...missions, createdMission.data]); // Add new mission to parent component state
-        toast.success('Mission created successfully!');
+      if (mission) { // Check if editing an existing mission
+        const updatedMission = await updateMission(mission._id, newMission); // Update mission data on the server
+        updateMissionInTable(updatedMission.data); // Update mission data in the table using the provided function
+        toast.success('Mission updated successfully!'); // Show success notification
+      } else { // Creating a new mission
+        const createdMission = await createMission(newMission); // Create a new mission on the server
+        setMissions([...missions, createdMission.data]); // Update missions state in parent component by adding the created mission
+        toast.success('Mission created successfully!'); // Show success notification
       }
 
-      closeForm(); // Close the form modal after successful operation
+      closeForm(); // Close the form modal after successful submission
     } catch (error) {
-      toast.error('Error creating/updating mission');
-      console.error('Error creating/updating mission:', error);
+      toast.error('Error creating/updating mission'); // Show error notification
+      console.error('Error creating/updating mission:', error); // Log error details for debugging
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      
       {/* Text field for mission name */}
       <TextField
         fullWidth
@@ -88,15 +83,20 @@ const MissionForm = ({
           {/* Maps through available robots to create menu items */}
           {robots.map((theRobot) => (
             <MenuItem key={theRobot._id} value={theRobot._id}>
-              {theRobot.name} - {theRobot.model_name} - Displays robot name and model
+              {theRobot.name} - {theRobot.model_name}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
       {/* Submit button with appropriate text based on editing or creating a mission */}
-      <Button type="submit" variant="contained" color="primary">
-        {mission ? 'Update Mission' : 'Create Mission'}
-      </Button>
+      <DialogActions>
+        <Button onClick={closeForm} variant="contained" color="secondary">
+          Close
+        </Button>
+        <Button type="submit" variant="contained" color="primary">
+          {mission ? 'Update Mission' : 'Create Mission'}
+        </Button>
+      </DialogActions>
     </form>
   );
 };
