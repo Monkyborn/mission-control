@@ -8,14 +8,22 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const Dashboard = () => {
+  // State variables to manage missions and robots data
   const [missions, setMissions] = useState([]);
   const [robots, setRobots] = useState([]);
+
+  // State variables to manage selected mission and robot for editing
   const [selectedMission, setSelectedMission] = useState(null);
   const [selectedRobot, setSelectedRobot] = useState(null);
+
+  // State variables for managing mission and robot dialog visibility
   const [openMissionDialog, setOpenMissionDialog] = useState(false);
   const [openRobotDialog, setOpenRobotDialog] = useState(false);
+
+  // useNavigate hook for programmatic navigation
   const navigate = useNavigate();
 
+  // Fetches missions and robots on component mount
   useEffect(() => {
     const getMissions = async () => {
       const response = await fetchMissions();
@@ -31,9 +39,11 @@ const Dashboard = () => {
     getRobots();
   }, []);
 
+  // Handles mission deletion
   const handleDeleteMission = async (id) => {
     try {
       await deleteMission(id);
+      // Updates the missions state by filtering out the deleted mission
       setMissions(missions.filter((mission) => mission._id !== id));
       toast.success('Mission deleted successfully!');
     } catch (error) {
@@ -41,9 +51,11 @@ const Dashboard = () => {
     }
   };
 
+  // Handles robot deletion
   const handleDeleteRobot = async (id) => {
     try {
       await deleteRobot(id);
+      // Updates the robots state by filtering out the deleted robot
       setRobots(robots.filter((robot) => robot._id !== id));
       toast.success('Robot deleted successfully!');
     } catch (error) {
@@ -51,25 +63,29 @@ const Dashboard = () => {
     }
   };
 
+  // Opens the edit mission dialog with the selected mission data
   const handleEditMission = (mission) => {
     setSelectedMission(mission);
     setOpenMissionDialog(true);
   };
 
+  // Opens the edit robot dialog with the selected robot data
   const handleEditRobot = (robot) => {
     setSelectedRobot(robot);
     setOpenRobotDialog(true);
   };
 
+  // Navigates to the mission detail view for the selected mission
   const handleViewMissionDetails = (mission) => {
     navigate(`/mission/${mission._id}`);
   };
 
+  // Navigates to the teleoperation view for the selected robot
   const handleTeleoperateRobot = (robotId) => {
     navigate(`/teleoperation/${robotId}`);
   };
 
-  // Aggiorna una missione nella tabella delle missioni dopo la modifica
+  // Function to update the mission table after a mission is edited in the dialog
   const updateMissionInTable = (updatedMission) => {
     setMissions((prevMissions) =>
       prevMissions.map((mission) =>
@@ -81,18 +97,26 @@ const Dashboard = () => {
   return (
     <Container>
       <br />
-      {/* Missions Table */}
+
+      {/* Missions Table Section */}
       <Paper elevation={3} style={{ padding: '20px', marginBottom: '30px' }}>
+        {/* Header with title and button to create a new mission */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">Missions</Typography>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            startIcon={<Add />} 
-            onClick={() => { setOpenMissionDialog(true); setSelectedMission(null); }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Add />}
+            onClick={() => {
+              setOpenMissionDialog(true);
+              setSelectedMission(null); // Set selected mission to null for creating a new one
+            }}
+          >
             Create New Mission
           </Button>
         </Box>
+
+        {/* Table displaying mission details with actions */}
         <Table>
           <TableHead>
             <TableRow>
@@ -119,25 +143,31 @@ const Dashboard = () => {
                     <Delete />
                   </IconButton>
                 </TableCell>
-                {console.log(mission)}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </Paper>
 
-      {/* Robots Table */}
+      {/* Robots Table Section */}
       <Paper elevation={3} style={{ padding: '20px' }}>
+        {/* Header with title and button to create a new robot */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">Robots</Typography>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            startIcon={<Add />} 
-            onClick={() => { setOpenRobotDialog(true); setSelectedRobot(null); }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Add />}
+            onClick={() => {
+              setOpenRobotDialog(true);
+              setSelectedRobot(null); // Set selected robot to null for creating a new one
+            }}
+          >
             Create New Robot
           </Button>
         </Box>
+
+        {/* Table displaying robot details with actions */}
         <Table>
           <TableHead>
             <TableRow>
@@ -174,12 +204,12 @@ const Dashboard = () => {
       <Dialog open={openMissionDialog} onClose={() => setOpenMissionDialog(false)}>
         <DialogTitle>{selectedMission ? 'Edit Mission' : 'Create New Mission'}</DialogTitle>
         <DialogContent>
-        <MissionForm 
-            mission={selectedMission} 
-            setMissions={setMissions} 
-            missions={missions} 
-            closeForm={() => setOpenMissionDialog(false)} 
-            updateMissionInTable={updateMissionInTable} // Passa la funzione di aggiornamento
+          <MissionForm
+            mission={selectedMission}
+            setMissions={setMissions}
+            missions={missions}
+            closeForm={() => setOpenMissionDialog(false)}
+            updateMissionInTable={updateMissionInTable} // Pass the function to update the mission table
           />
         </DialogContent>
       </Dialog>
@@ -188,11 +218,11 @@ const Dashboard = () => {
       <Dialog open={openRobotDialog} onClose={() => setOpenRobotDialog(false)}>
         <DialogTitle>{selectedRobot ? 'Edit Robot' : 'Create New Robot'}</DialogTitle>
         <DialogContent>
-          <RobotForm 
-            robot={selectedRobot} 
-            setRobots={setRobots} 
-            robots={robots} 
-            closeForm={() => setOpenRobotDialog(false)} 
+          <RobotForm
+            robot={selectedRobot}
+            setRobots={setRobots}
+            robots={robots}
+            closeForm={() => setOpenRobotDialog(false)}
           />
         </DialogContent>
       </Dialog>
@@ -201,4 +231,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

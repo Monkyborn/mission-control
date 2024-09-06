@@ -1,51 +1,55 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router(); // Creates an Express router
+
+// Imports Mongoose models for Missions and Robots
 const Mission = require('../models/Mission');
 const Robot = require('../models/Robot');
 
-// Fetch all missions and populate the robot field
+// ** Missions API Endpoints **
+
+// GET /missions: Fetches all missions and populates the 'robot' field with the associated robot details
 router.get('/missions', async (req, res) => {
   try {
-    const missions = await Mission.find().populate('robot');
+    const missions = await Mission.find().populate('robot'); // Populate robot data
     res.send(missions);
   } catch (error) {
-    res.status(500).send('Internal Server Error');
+    res.status(500).send('Internal Server Error'); // Generic error message
   }
 });
 
-// Fetch a specific mission by ID and populate robot
+// GET /missions/:id: Fetches a specific mission by ID and populates the 'robot' field
 router.get('/missions/:id', async (req, res) => {
   try {
     const mission = await Mission.findById(req.params.id).populate('robot');
     if (!mission) return res.status(404).send('Mission not found');
     res.send(mission);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).send(error.message); // Send specific error message
   }
 });
 
-// Create a new mission
+// POST /missions: Creates a new mission
 router.post('/missions', async (req, res) => {
   try {
-    const { name, description, robot } = req.body;
+    const { name, description, robot } = req.body; // Destructure request body
     const newMission = new Mission({ name, description, robot });
     await newMission.save();
     const populatedMission = await Mission.findById(newMission._id).populate('robot');
-    res.send(populatedMission);
+    res.send(populatedMission); // Send the created mission with populated robot data
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
-// Update a mission (including assigning or changing the robot)
+// PUT /missions/:id: Updates a mission (including assigning or changing the robot)
 router.put('/missions/:id', async (req, res) => {
   try {
     const { name, description, robot } = req.body;
     const updatedMission = await Mission.findByIdAndUpdate(
       req.params.id,
       { name, description, robot },
-      { new: true } // This returns the updated mission
-    ).populate('robot'); // Populate robot details
+      { new: true } // Returns the updated mission
+    ).populate('robot');
 
     if (!updatedMission) return res.status(404).send('Mission not found');
     res.send(updatedMission);
@@ -54,18 +58,20 @@ router.put('/missions/:id', async (req, res) => {
   }
 });
 
-// Delete a mission by ID
+// DELETE /missions/:id: Deletes a mission by ID
 router.delete('/missions/:id', async (req, res) => {
   try {
     const mission = await Mission.findByIdAndDelete(req.params.id);
     if (!mission) return res.status(404).send('Mission not found');
     res.send(mission);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).send('Internal Server Error');
   }
 });
 
-// Fetch all robots
+// ** Robots API Endpoints **
+
+// GET /robots: Fetches all robots
 router.get('/robots', async (req, res) => {
   try {
     const robots = await Robot.find();
@@ -75,7 +81,7 @@ router.get('/robots', async (req, res) => {
   }
 });
 
-// Fetch a specific robot by ID
+// GET /robots/:id: Fetches a specific robot by ID
 router.get('/robots/:id', async (req, res) => {
   try {
     const robot = await Robot.findById(req.params.id);
@@ -86,18 +92,18 @@ router.get('/robots/:id', async (req, res) => {
   }
 });
 
-// Create a new robot
+// POST /robots: Creates a new robot
 router.post('/robots', async (req, res) => {
   try {
     const newRobot = new Robot(req.body);
     await newRobot.save();
-    res.status(201).json(newRobot); // Ensure the response sends back the created robot
+    res.status(201).json(newRobot); // Send the created robot with appropriate status code and response format
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error.message }); // Send specific error message
   }
 });
 
-// Update a robot by ID
+// PUT /robots/:id: Updates a robot by ID
 router.put('/robots/:id', async (req, res) => {
   try {
     const updatedRobot = await Robot.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -108,7 +114,7 @@ router.put('/robots/:id', async (req, res) => {
   }
 });
 
-// Delete a robot by ID
+// DELETE /robots/:id: Deletes a robot by ID
 router.delete('/robots/:id', async (req, res) => {
   try {
     const robot = await Robot.findByIdAndDelete(req.params.id);
@@ -119,31 +125,19 @@ router.delete('/robots/:id', async (req, res) => {
   }
 });
 
-// Assign a robot to a mission
-router.put('/missions/:id/assign-robot', async (req, res) => {
+// ** Additional API Endpoints (if needed) **
+
+// PUT /robots/:id/update-position: Updates the robot's position
+router.put('/robots/:id/update-position', async (req, res) => {
   try {
-    const { robotId } = req.body;
-    const mission = await Mission.findById(req.params.id);
-    if (!mission) return res.status(404).send('Mission not found');
-    mission.robot = robotId;
-    await mission.save();
-    res.send(mission);
+    const { pose_x, pose_y } = req.body;
+    const updatedRobot = await Robot.findByIdAndUpdate(req.params.id, { pose_x, pose_y }, { new: true });
+    if (!updatedRobot) return res.status(404).send('Robot not found');
+    res.send(updatedRobot);
   } catch (error) {
-    res.status(500).send('Error assigning robot to mission');
+    res.status(500).send('Error updating robot position');
   }
 });
 
-// Remove a robot from a mission
-router.put('/missions/:id/remove-robot', async (req, res) => {
-  try {
-    const mission = await Mission.findById(req.params.id);
-    if (!mission) return res.status(404).send('Mission not found');
-    mission.robot = null; // Remove robot
-    await mission.save();
-    res.send(mission);
-  } catch (error) {
-    res.status(500).send('Error removing robot from mission');
-  }
-});
-
+// ** Export the router **
 module.exports = router;
