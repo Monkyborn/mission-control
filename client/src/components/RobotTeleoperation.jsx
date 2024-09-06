@@ -81,6 +81,15 @@ const RobotTeleoperation = () => {
         <RobotMap position={position} />  {/* Displays the robot's position on the map */}
         <ControlPanel startMovement={startMovement} clearMovement={clearMovement} />  {/* Renders the control panel for movement commands */}
       </Box>
+        {/* Add the button to navigate back to the dashboard */}
+      <Button 
+        variant="contained" 
+        color="secondary" 
+        onClick={() => navigate('/')} 
+        style={{ marginTop: '20px' }}
+      >
+        Back to Dashboard
+      </Button>
     </Container>
   );
 };
