@@ -58,6 +58,43 @@ router.put('/missions/:id', async (req, res) => {
   }
 });
 
+// PUT /missions/:missionId/remove-robot: Removes the assigned robot from a mission
+router.put('/missions/:id/remove-robot', async (req, res) => {
+  try {
+    const mission = await Mission.findById(req.params.id);
+    if (!mission) return res.status(404).send('Mission not found');
+
+    mission.robot = null; 
+    await mission.save();
+    
+    res.send(mission);
+  } catch (error) {
+    res.status(500).send('Error removing robot from mission');
+  }
+});
+
+// PUT /missions/:missionId/assign-robot: Assigns a robot to a mission
+router.put('/missions/:id/assign-robot', async (req, res) => {
+  try {
+    const { robotId } = req.body; 
+    const mission = await Mission.findById(req.params.id);
+    if (!mission) {
+      return res.status(404).send('Mission not found'); 
+    }
+    const robot = await Robot.findById(robotId); 
+    if (!robot) {
+      return res.status(404).send('Robot not found'); 
+    }
+    mission.robot = robotId; 
+    await mission.save();
+
+    const updatedMission = await Mission.findById(mission._id).populate('robot'); 
+    res.send(updatedMission); // Updates Mission
+  } catch (error) {
+    res.status(500).send('Error assigning robot to mission');
+  }
+});
+
 // DELETE /missions/:id: Deletes a mission by ID
 router.delete('/missions/:id', async (req, res) => {
   try {

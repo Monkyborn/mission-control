@@ -56,7 +56,7 @@ const MissionDetail = () => {
   const handleRemoveRobot = async () => {
     try {
       // Calls the API to remove the assigned robot
-      const updatedMission = await removeRobotFromMission(id, mission.robot._id);
+      const updatedMission = await removeRobotFromMission(id);
       setMission(updatedMission.data);
 
       toast.success('Robot removed from mission successfully!');
@@ -107,11 +107,13 @@ const MissionDetail = () => {
                   {/* Switch component used to toggle robot assignment */}
                   <Switch
                     checked={mission.robot && mission.robot._id === robot._id}
-                    onChange={(e) =>
-                      e.target.checked
-                        ? handleAssignRobot(robot._id)
-                        : handleRemoveRobot(robot._id)
-                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        handleAssignRobot(robot._id);
+                      } else {
+                        handleRemoveRobot();
+                      }
+                    }}
                     color="primary"
                     inputProps={{ 'aria-label': 'Assign Robot' }}
                   />
